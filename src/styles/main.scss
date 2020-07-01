@@ -1,0 +1,24 @@
+// sass-resources-loader 
+// webpack
+// {
+//   test: sassRegex,
+//   exclude: sassModuleRegex,
+//   use: getStyleLoaders(
+//     {
+//       importLoaders: 3,
+//       sourceMap: isEnvProduction && shouldUseSourceMap,
+//     },
+//     'sass-loader'
+//   ).concat({
+//     loader:'sass-resources-loader',
+//     options:{
+//       resources:[
+//         path.resolve(__dirname,'../src/styles/main.scss')
+//       ]
+//     }
+//   }),
+//   sideEffects: true,
+// },
+// 配置scss全局变量-----主入口
+@import "./scssConfig.scss";
+@import "./normalize.scss";
