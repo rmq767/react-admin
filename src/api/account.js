@@ -9,6 +9,15 @@ export function Login(data) {
     // params:data  //请求为get
   })
 }
+// 注册接口
+export function Register(data) {
+  return service.request({
+    url:'/register/',
+    method:'post',
+    data, //请求为post
+    // params:data  //请求为get
+  })
+}
 // 验证码接口
 export function GetCode(data) {
   return service.request({

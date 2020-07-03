@@ -1,81 +1,40 @@
 import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom'
 import { Form, Input, Button, Row, Col, message } from 'antd';
 import { UserOutlined, LockOutlined, VerifiedOutlined } from '@ant-design/icons';
 import {validate_password, validate_email} from '../../utils/validate'//验证
-import {Login, GetCode} from '../../api/account'//api
+import {Login} from '../../api/account'//api
+import Code from "../../components/code/index";
+import CryptoJS from 'crypto-js'
 
-export default class LoginForm extends Component {
+class LoginForm extends Component {
   state = {
     username:"",
-    code_button_disabled:false,
-    code_button_loading:false,
-    code_button_text:"获取验证码"
+    module:"register"
   }
-  onFinish = values => {
-    Login().then(res => {
-      console.log(res)
+  onFinish = (values) => {
+    const requestData = {
+      username:values.username,
+      password:CryptoJS.MD5(values.password).toString(),
+      code:values.code,
+    }
+    Login(requestData).then(res => {
+      message.success(res.data.message,3)
+      this.props.history.push("/index")//withRouter
     }).catch(err => {
-      console.log(err)
+      message.error(err,3)
     })
-    console.log('Received values of form: ', values);
   };
   toggleForm = () => {
     this.props.switchForm('register')
   }
-  getCode = () => {
-    if (!this.state.username) {
-      message.warning('用户名不存在！',1);
-      return false;
-    }
-    const requestData = {
-      username:this.state.username,
-      module:"login"
-    }
-    GetCode(requestData).then(res => {
-      console.log(res)
-      this.countDown()
-    }).catch(err => {
-      this.setState({
-        code_button_loading:false,
-        code_button_text:"重新发送"
-      })
-    })
-    this.setState({
-      code_button_loading:true,
-      code_button_text:"发送中"
-    })
-  }
   inputChange = (e) => {
     this.setState({
-      username:e.target.value,
+      username:e.target.value
     })
-  }
-  countDown = () => {
-    let sec = 60
-    this.setState({
-      code_button_disabled:true,
-      code_button_loading:false,
-      code_button_text:`${sec}s`
-    })
-    let timer = null
-    timer = setInterval(() => {
-      sec--;
-      if (sec <= 0) {
-        clearInterval(timer)
-        this.setState({
-          code_button_disabled:false,
-          code_button_text:"重新发送"
-        })
-        return false
-      }
-      this.setState({
-        code_button_text:`${sec}s`
-      })
-    }, 1000);
   }
   render() {
-    const {username, code_button_disabled, code_button_loading, code_button_text} = this.state
-    const _this = this
+    const {username, module} = this.state
     return (
       <div>
         <div className="form-header">
@@ -101,12 +60,9 @@ export default class LoginForm extends Component {
                 ({ getFieldValue }) => ({
                   validator(rule, value) {
                     if (validate_email(value)) {
-                      _this.setState({
-                        code_button_disabled:false
-                      })
                       return Promise.resolve();
                     }else{
-                      return Promise.reject('密码不能小于6位');
+                      return Promise.reject('邮箱格式不正确');
                     }
                   },
                 }),
@@ -157,7 +113,7 @@ export default class LoginForm extends Component {
               <Input prefix={<VerifiedOutlined className="site-form-item-icon" />} placeholder="Code" />
               </Col>
               <Col className="gutter-row" span={10}>
-              <Button type="danger" block onClick={this.getCode} disabled={code_button_disabled} loading={code_button_loading}>{code_button_text}</Button>
+                <Code username={username} module={module}></Code>
               </Col>
             </Row>
             </Form.Item>
@@ -172,3 +128,5 @@ export default class LoginForm extends Component {
     )
   }
 }
+
+export default withRouter(LoginForm)
