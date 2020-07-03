@@ -22,3 +22,6 @@
 // 配置scss全局变量-----主入口
 @import "./scssConfig.scss";
 @import "./normalize.scss";
+body{
+  background-color: #001529 !important;
+}
