@@ -10,7 +10,7 @@ function App() {
     <HashRouter>
       <Switch>
         <Route path="/" exact component={Login}></Route>
-        <ProvideRouter path="/index" exact component={Index}></ProvideRouter>
+        <ProvideRouter path="/index" component={Index}></ProvideRouter>
       </Switch>
     </HashRouter>
   );

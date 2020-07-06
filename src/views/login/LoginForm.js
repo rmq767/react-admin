@@ -4,8 +4,9 @@ import { Form, Input, Button, Row, Col, message } from 'antd';
 import { UserOutlined, LockOutlined, VerifiedOutlined } from '@ant-design/icons';
 import {validate_password, validate_email} from '../../utils/validate'//验证
 import {Login} from '../../api/account'//api
-import Code from "../../components/code/index";
-import CryptoJS from 'crypto-js'
+import Code from "../../components/code/index";//验证码组件
+import CryptoJS from 'crypto-js'//加密
+import { setToken } from "../../utils/session";
 
 class LoginForm extends Component {
   state = {
@@ -20,6 +21,9 @@ class LoginForm extends Component {
     }
     Login(requestData).then(res => {
       message.success(res.data.message,3)
+      const data = res.data.data
+      // 存token
+      setToken(data.token)
       this.props.history.push("/index")//withRouter
     }).catch(err => {
       message.error(err,3)
