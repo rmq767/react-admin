@@ -1,11 +1,7 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
 
-export default class Add extends Component {
-  render() {
-    return (
-      <div>
-        useradd
-      </div>
-    )
-  }
+export default class UserAdd extends Component {
+	render() {
+		return <div>useradd</div>;
+	}
 }
