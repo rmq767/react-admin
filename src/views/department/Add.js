@@ -1,12 +1,17 @@
 import React, { Component } from "react";
 import { Form, Input, InputNumber, Switch, Button, message } from "antd";
-import { DepartmentAddApi } from "../../api/department";
+import {
+	DepartmentAddApi,
+	DepartmentDetailApi,
+	DepartmentEditApi,
+} from "../../api/department";
 
 export default class DepartmentAdd extends Component {
 	constructor(props) {
 		super(props);
 		this.form = React.createRef();
 		this.state = {
+			id: null,
 			loading: false,
 			formLayout: {
 				labelCol: {
@@ -18,6 +23,40 @@ export default class DepartmentAdd extends Component {
 			},
 		};
 	}
+	componentDidMount() {
+		debugger;
+		if (this.props.location.state) {
+			this.setState({ id: this.props.location.state.id });
+		}
+		// if (this.props.location.state && this.state.id) {
+		// 	this.getDetail(this.state.id);
+		// }
+	}
+	componentDidUpdate() {
+		debugger;
+		if (!this.props.location.state && this.state.id) {
+			this.form.current.resetFields();
+			this.setState({
+				id: null,
+			});
+		}
+		if (this.props.location.state && this.state.id) {
+			this.getDetail(this.state.id);
+		}
+	}
+	getDetail = async (id) => {
+		if (!this.props.location.state) {
+			return false;
+		}
+		const res = await DepartmentDetailApi({ id });
+		const { name, number, status, content } = res.data.data;
+		this.form.current.setFieldsValue({
+			name,
+			number,
+			status,
+			content,
+		});
+	};
 	onSubmit = async (value) => {
 		if (!value.name) {
 			return message.error("部门名称不能为空！");
@@ -25,10 +64,30 @@ export default class DepartmentAdd extends Component {
 		if (!value.content) {
 			return message.error("描述不能为空！");
 		}
+		this.state.id ? this.Edit(value) : this.Add(value);
+	};
+	Add = async (value) => {
 		this.setState({
 			loading: true,
 		});
 		const res = await DepartmentAddApi(value);
+		if (res.data.resCode === 0) {
+			this.setState({
+				loading: false,
+			});
+			this.form.current.resetFields();
+		} else {
+			this.setState({
+				loading: false,
+			});
+		}
+	};
+	Edit = async (value) => {
+		const params = Object.assign({}, value, { id: this.state.id });
+		this.setState({
+			loading: true,
+		});
+		const res = await DepartmentEditApi(params);
 		if (res.data.resCode === 0) {
 			this.setState({
 				loading: false,
@@ -54,12 +113,8 @@ export default class DepartmentAdd extends Component {
 				<Form.Item label="人员数量" name="number">
 					<InputNumber min={1} max={100} />
 				</Form.Item>
-				<Form.Item label="禁启用" name="status">
-					<Switch
-						checked={true}
-						checkedChildren="开启"
-						unCheckedChildren="关闭"
-					/>
+				<Form.Item label="禁启用" name="status" valuePropName="checked">
+					<Switch checkedChildren="开启" unCheckedChildren="关闭" />
 				</Form.Item>
 				<Form.Item label="描述" name="content">
 					<Input.TextArea rows={4} />
@@ -70,7 +125,7 @@ export default class DepartmentAdd extends Component {
 						type="primary"
 						htmlType="submit"
 					>
-						添加
+						{this.state.id ? "编辑" : "添加"}
 					</Button>
 				</Form.Item>
 			</Form>
